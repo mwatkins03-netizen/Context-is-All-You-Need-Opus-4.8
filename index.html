@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Context Is All You Need — A Gallery of Faculty-Built AI Experiments</title>
+<meta name="description" content="A gallery of interactive AI-literacy experiments built by Marc Watkins to show what faculty can create for their students." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Fredoka:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --cream:#f4ead0;
+    --cream-2:#ecdfbf;
+    --paper:#f8f1dc;
+    --orange:#cc6633;
+    --orange-d:#b14e27;
+    --olive:#6f7538;
+    --olive-d:#545a28;
+    --rose:#bf4530;
+    --gold:#d8a23f;
+    --ink:#37301d;
+    --ink-soft:#5f5536;
+    --line:#3a3219;
+    --shadow:rgba(55,48,29,.22);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Fredoka',system-ui,sans-serif;
+    color:var(--ink);
+    background-color:var(--cream);
+    background-image:
+      radial-gradient(circle at 18% 12%, rgba(204,102,51,.10), transparent 38%),
+      radial-gradient(circle at 82% 8%, rgba(111,117,56,.12), transparent 40%),
+      radial-gradient(circle at 50% 120%, rgba(191,69,48,.10), transparent 45%),
+      radial-gradient(var(--cream-2) 1.1px, transparent 1.1px);
+    background-size:auto,auto,auto,22px 22px;
+    background-attachment:fixed;
+    min-height:100vh;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- decorative frame ---------- */
+  .frame{
+    max-width:1180px;
+    margin:0 auto;
+    padding:clamp(18px,3vw,40px);
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:relative;
+    text-align:center;
+    padding:clamp(24px,4vw,46px) clamp(16px,4vw,40px) clamp(10px,2vw,20px);
+    border:3px solid var(--line);
+    border-radius:34px;
+    background:var(--paper);
+    box-shadow:0 10px 0 var(--shadow), inset 0 0 0 7px var(--cream);
+    overflow:hidden;
+  }
+  header::before,header::after{
+    content:"";
+    position:absolute;
+    width:140px;height:140px;
+    background:
+      radial-gradient(circle at center, var(--gold) 0 8px, transparent 9px);
+    background-size:24px 24px;
+    opacity:.45;
+    pointer-events:none;
+  }
+  header::before{top:-30px;left:-30px;}
+  header::after{bottom:-30px;right:-30px;}
+
+  .kicker{
+    display:inline-flex;align-items:center;gap:10px;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    font-size:clamp(10px,1.5vw,13px);
+    color:var(--olive-d);
+    background:var(--cream);
+    border:2px solid var(--line);
+    border-radius:999px;
+    padding:7px 16px;
+    margin-bottom:18px;
+  }
+  .kicker .dot{width:8px;height:8px;border-radius:50%;background:var(--orange);}
+
+  h1.wordmark{
+    font-family:'Bagel Fat One',cursive;
+    font-weight:400;
+    margin:0;
+    line-height:.96;
+    font-size:clamp(38px,8.4vw,104px);
+    color:var(--orange);
+    letter-spacing:.005em;
+    text-shadow:
+      3px 3px 0 var(--olive),
+      4px 4px 0 var(--line),
+      0 1px 0 var(--orange-d);
+  }
+  h1.wordmark span{color:var(--olive);text-shadow:3px 3px 0 var(--orange),4px 4px 0 var(--line);}
+
+  .subtitle{
+    max-width:680px;
+    margin:18px auto 6px;
+    font-size:clamp(15px,1.9vw,19px);
+    color:var(--ink-soft);
+    font-weight:500;
+    line-height:1.5;
+  }
+  .byline{
+    margin-top:14px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;font-weight:500;
+    color:var(--ink-soft);
+  }
+  .byline a{color:var(--orange-d);text-decoration:none;border-bottom:2px solid var(--gold);font-weight:600;}
+  .byline a:hover{color:var(--rose);}
+
+  /* ---------- carousel ---------- */
+  .stage-wrap{
+    margin-top:clamp(20px,4vw,44px);
+  }
+  .stage-label{
+    text-align:center;
+    font-family:'Space Grotesk',sans-serif;
+    text-transform:uppercase;
+    letter-spacing:.28em;
+    font-size:12px;font-weight:600;
+    color:var(--olive-d);
+    margin-bottom:6px;
+  }
+  .scene{
+    position:relative;
+    height:clamp(420px,52vw,500px);
+    perspective:1500px;
+    perspective-origin:50% 42%;
+    margin:0 auto;
+    touch-action:pan-y;
+  }
+  .cylinder{
+    position:absolute;
+    top:50%;left:50%;
+    width:0;height:0;
+    transform-style:preserve-3d;
+    transition:transform .9s cubic-bezier(.22,.61,.36,1);
+  }
+  .card{
+    position:absolute;
+    width:262px;height:372px;
+    left:-131px;top:-186px;
+    background:var(--paper);
+    border:3px solid var(--line);
+    border-radius:26px;
+    box-shadow:0 14px 0 -4px var(--shadow);
+    padding:22px 20px;
+    display:flex;flex-direction:column;align-items:center;
+    text-align:center;
+    cursor:pointer;
+    backface-visibility:hidden;
+    transition:box-shadow .3s, border-color .3s, transform .3s;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .card::before{
+    content:"";
+    position:absolute;inset:7px;
+    border:2px solid var(--cream-2);
+    border-radius:19px;
+    pointer-events:none;
+  }
+  .card .star{
+    position:absolute;top:-15px;left:50%;transform:translateX(-50%);
+    width:30px;height:30px;color:var(--orange);
+  }
+  .card.is-active{
+    border-color:var(--orange);
+    box-shadow:0 16px 0 -4px var(--shadow),0 0 0 4px rgba(204,102,51,.18);
+  }
+  .card.is-active .star{color:var(--rose);}
+  .card .icon{
+    width:118px;height:118px;margin:14px 0 4px;
+  }
+  .card .tag{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--paper);
+    background:var(--olive);
+    border:2px solid var(--line);
+    border-radius:999px;
+    padding:4px 11px;
+    margin-bottom:9px;
+  }
+  .card h3{
+    font-family:'Bagel Fat One',cursive;
+    font-weight:400;
+    font-size:21px;line-height:1.05;
+    margin:0 0 8px;
+    color:var(--ink);
+    letter-spacing:.01em;
+  }
+  .card p.mini{
+    font-size:13.5px;line-height:1.42;
+    color:var(--ink-soft);
+    margin:0;
+    font-weight:500;
+  }
+  .card .open-hint{
+    margin-top:auto;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--orange-d);
+    display:flex;align-items:center;gap:6px;
+  }
+
+  /* ---------- carousel controls ---------- */
+  .controls{
+    display:flex;align-items:center;justify-content:center;gap:18px;
+    margin-top:8px;
+  }
+  .nav-btn{
+    width:54px;height:54px;border-radius:50%;
+    background:var(--orange);
+    border:3px solid var(--line);
+    color:var(--paper);
+    cursor:pointer;
+    display:grid;place-items:center;
+    box-shadow:0 5px 0 var(--shadow);
+    transition:transform .12s, background .2s;
+  }
+  .nav-btn:hover{background:var(--orange-d);}
+  .nav-btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--shadow);}
+  .nav-btn svg{width:22px;height:22px;}
+  .dots{display:flex;gap:10px;}
+  .dots button{
+    width:13px;height:13px;border-radius:50%;
+    border:2px solid var(--line);
+    background:var(--cream);
+    cursor:pointer;padding:0;
+    transition:background .2s,transform .2s;
+  }
+  .dots button.active{background:var(--rose);transform:scale(1.15);}
+
+  /* ---------- detail panel ---------- */
+  .detail{
+    margin:clamp(26px,4vw,46px) auto 0;
+    max-width:880px;
+    background:var(--paper);
+    border:3px solid var(--line);
+    border-radius:28px;
+    box-shadow:0 10px 0 var(--shadow);
+    padding:clamp(22px,3vw,34px);
+    position:relative;
+    overflow:hidden;
+  }
+  .detail::after{
+    content:"";position:absolute;right:-40px;bottom:-40px;width:150px;height:150px;
+    background:radial-gradient(circle at center,var(--olive) 0 7px,transparent 8px);
+    background-size:26px 26px;opacity:.18;pointer-events:none;
+  }
+  .detail-top{display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
+  .detail-icon{
+    flex:0 0 auto;width:92px;height:92px;
+    background:var(--cream);border:3px solid var(--line);border-radius:22px;
+    display:grid;place-items:center;
+  }
+  .detail-icon svg{width:64px;height:64px;}
+  .detail-head{flex:1 1 240px;min-width:200px;}
+  .detail-head .tag{
+    display:inline-block;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--olive-d);margin-bottom:4px;
+  }
+  .detail-head h2{
+    font-family:'Bagel Fat One',cursive;font-weight:400;
+    margin:0;font-size:clamp(24px,3.6vw,34px);color:var(--orange);
+    text-shadow:2px 2px 0 var(--cream-2);
+    line-height:1.02;
+  }
+  .detail p.desc{
+    font-size:clamp(15px,1.9vw,17px);line-height:1.55;color:var(--ink);
+    font-weight:500;margin:18px 0 0;
+  }
+  .classroom{
+    margin-top:18px;
+    background:var(--cream);
+    border:2px solid var(--line);
+    border-left:8px solid var(--olive);
+    border-radius:14px;
+    padding:14px 18px;
+  }
+  .classroom .lbl{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--olive-d);display:flex;align-items:center;gap:7px;margin-bottom:4px;
+  }
+  .classroom p{margin:0;font-size:14.5px;line-height:1.5;color:var(--ink-soft);font-weight:500;}
+
+  .detail-actions{display:flex;gap:14px;margin-top:22px;flex-wrap:wrap;}
+  .btn{
+    font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;
+    border:3px solid var(--line);border-radius:14px;
+    padding:12px 22px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:9px;
+    text-decoration:none;
+    box-shadow:0 5px 0 var(--shadow);
+    transition:transform .12s,background .2s;
+  }
+  .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--shadow);}
+  .btn-primary{background:var(--orange);color:var(--paper);}
+  .btn-primary:hover{background:var(--orange-d);}
+  .btn-ghost{background:var(--cream);color:var(--ink);}
+  .btn-ghost:hover{background:var(--cream-2);}
+  .btn svg{width:18px;height:18px;}
+
+  /* ---------- preview modal ---------- */
+  .overlay{
+    position:fixed;inset:0;z-index:50;
+    background:rgba(40,34,18,.72);
+    backdrop-filter:blur(4px);
+    display:none;
+    align-items:center;justify-content:center;
+    padding:clamp(10px,2.5vw,34px);
+  }
+  .overlay.open{display:flex;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;}to{opacity:1;}}
+  .modal{
+    width:min(1120px,100%);
+    height:min(86vh,860px);
+    background:var(--paper);
+    border:3px solid var(--line);
+    border-radius:24px;
+    box-shadow:0 18px 0 rgba(40,34,18,.4);
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .modal-bar{
+    display:flex;align-items:center;gap:14px;
+    padding:12px 16px;
+    background:var(--cream);
+    border-bottom:3px solid var(--line);
+  }
+  .modal-bar .dot-row{display:flex;gap:7px;}
+  .modal-bar .dot-row i{width:13px;height:13px;border-radius:50%;border:2px solid var(--line);display:block;}
+  .modal-bar .dot-row i:nth-child(1){background:var(--rose);}
+  .modal-bar .dot-row i:nth-child(2){background:var(--gold);}
+  .modal-bar .dot-row i:nth-child(3){background:var(--olive);}
+  .modal-title{
+    font-family:'Bagel Fat One',cursive;font-weight:400;font-size:16px;color:var(--ink);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .modal-spacer{flex:1;}
+  .icon-btn{
+    width:40px;height:40px;border-radius:11px;border:2px solid var(--line);
+    background:var(--paper);cursor:pointer;display:grid;place-items:center;
+    transition:background .15s;
+  }
+  .icon-btn:hover{background:var(--cream-2);}
+  .icon-btn svg{width:19px;height:19px;color:var(--ink);}
+  .icon-btn.close:hover{background:var(--rose);}
+  .icon-btn.close:hover svg{color:var(--paper);}
+  .modal-frame{flex:1;position:relative;background:var(--cream);}
+  .modal-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;}
+  .frame-load{
+    position:absolute;inset:0;display:grid;place-items:center;
+    font-family:'Space Grotesk',sans-serif;color:var(--ink-soft);font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;font-size:12px;
+  }
+  .modal-frame:fullscreen{background:#fff;}
+  .modal-frame:fullscreen iframe{height:100vh;}
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:clamp(40px,6vw,72px);
+    border-top:3px dashed var(--line);
+    padding:clamp(26px,4vw,46px) 8px 10px;
+    text-align:center;
+  }
+  .foot-grid{
+    display:flex;gap:26px;justify-content:center;flex-wrap:wrap;
+    text-align:left;max-width:900px;margin:0 auto;
+  }
+  .foot-card{
+    flex:1 1 250px;min-width:230px;max-width:400px;
+    background:var(--paper);border:3px solid var(--line);border-radius:20px;
+    padding:18px 20px;box-shadow:0 7px 0 var(--shadow);
+  }
+  .foot-card h4{
+    font-family:'Bagel Fat One',cursive;font-weight:400;margin:0 0 8px;
+    font-size:17px;color:var(--olive);display:flex;align-items:center;gap:8px;
+  }
+  .foot-card p{margin:0;font-size:13.5px;line-height:1.5;color:var(--ink-soft);font-weight:500;}
+  .foot-card a{color:var(--orange-d);font-weight:600;text-decoration:none;border-bottom:2px solid var(--gold);}
+  .foot-card a:hover{color:var(--rose);}
+  .ai-badge{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--olive-d);
+    background:var(--cream);border:2px solid var(--line);border-radius:999px;
+    padding:5px 13px;margin-bottom:10px;
+  }
+  .copyright{
+    margin-top:26px;font-family:'Space Grotesk',sans-serif;
+    font-size:12px;color:var(--ink-soft);font-weight:500;
+  }
+  .copyright a{color:var(--orange-d);text-decoration:none;font-weight:600;}
+
+  .hint-line{
+    text-align:center;font-family:'Space Grotesk',sans-serif;
+    font-size:12px;color:var(--ink-soft);margin-top:14px;font-weight:500;letter-spacing:.04em;
+  }
+
+  @media (max-width:640px){
+    .scene{height:430px;}
+    h1.wordmark{text-shadow:2px 2px 0 var(--olive),3px 3px 0 var(--line);}
+    .detail-icon{width:74px;height:74px;}
+    .detail-icon svg{width:50px;height:50px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .cylinder{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- ============ HEADER ============ -->
+  <header>
+    <div class="kicker"><span class="dot"></span>A Gallery of Faculty-Built AI Experiments</div>
+    <h1 class="wordmark">Context Is<br><span>All You Need</span></h1>
+    <p class="subtitle">Five interactive experiments showing what faculty can build <em>for</em> their students — not just talk about. Spin the reel, open any one, and explore it full-screen.</p>
+    <p class="byline">Designed &amp; built by <strong>Marc Watkins</strong> · Writing at <a href="https://marcwatkins.substack.com/" target="_blank" rel="noopener">Rhetorica on Substack ↗</a></p>
+  </header>
+
+  <!-- ============ CAROUSEL ============ -->
+  <div class="stage-wrap">
+    <div class="stage-label">◆ Spin the Reel ◆</div>
+    <div class="scene" id="scene">
+      <div class="cylinder" id="cylinder"></div>
+    </div>
+    <div class="controls">
+      <button class="nav-btn" id="prev" aria-label="Previous experiment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="dots" id="dots"></div>
+      <button class="nav-btn" id="next" aria-label="Next experiment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <p class="hint-line">Drag the reel · use ← → keys · or tap a card to open it</p>
+  </div>
+
+  <!-- ============ DETAIL PANEL ============ -->
+  <div class="detail" id="detail" aria-live="polite"></div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="foot-grid">
+      <div class="foot-card">
+        <h4>✦ Made by a human, with AI</h4>
+        <span class="ai-badge">⟡ Transparent AI Disclosure</span>
+        <p>Every experiment in this gallery — and the gallery itself — was designed and directed by <strong>Marc Watkins</strong> and built collaboratively with <strong>Anthropic's Claude (Opus 4.8)</strong>. Concept, pedagogy, sourcing, and final edits are human; code scaffolding and iteration were AI-assisted. Human in the loop, start to finish.</p>
+      </div>
+      <div class="foot-card">
+        <h4>✦ Keep exploring</h4>
+        <p>These are living demos meant to be remixed for your own classroom. Read the thinking behind them and follow new releases at <a href="https://marcwatkins.substack.com/" target="_blank" rel="noopener">marcwatkins.substack.com ↗</a>.</p>
+      </div>
+    </div>
+    <p class="copyright">© <span id="yr"></span> Marc Watkins · <a href="https://marcwatkins.substack.com/" target="_blank" rel="noopener">Rhetorica</a> · Shared for educators to learn from and adapt.</p>
+  </footer>
+
+</div>
+
+<!-- ============ PREVIEW MODAL ============ -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Experiment preview">
+  <div class="modal">
+    <div class="modal-bar">
+      <div class="dot-row"><i></i><i></i><i></i></div>
+      <div class="modal-title" id="modalTitle">Preview</div>
+      <div class="modal-spacer"></div>
+      <button class="icon-btn" id="btnFull" title="Toggle full screen" aria-label="Toggle full screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+      </button>
+      <a class="icon-btn" id="btnTab" title="Open in new tab" aria-label="Open in new tab" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+      </a>
+      <button class="icon-btn close" id="btnClose" title="Close" aria-label="Close preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-frame" id="modalFrame">
+      <div class="frame-load" id="frameLoad">Loading experiment…</div>
+      <iframe id="modalIframe" title="Experiment preview" allow="fullscreen; clipboard-write" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   CUSTOM ICONS — hand-drawn retro style, original artwork
+   (thick outlines, palette-matched, unique per experiment)
+   ========================================================= */
+const C = {ink:'#37301d',orange:'#cc6633',olive:'#6f7538',rose:'#bf4530',gold:'#d8a23f',cream:'#f4ead0'};
+
+const star = `<svg class="star" viewBox="0 0 32 32" fill="currentColor"><path d="M16 1l3.4 8.2L28 11l-6 6.2L23.4 26 16 21.6 8.6 26 10 17.2 4 11l8.6-1.8z"/></svg>`;
+
+// 1 — AI Literacy / Workshop Builder : presentation screen with live-poll bars + sparkle
+const icoWorkshop = `<svg viewBox="0 0 120 120" fill="none" stroke="${C.ink}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="14" y="22" width="92" height="62" rx="9" fill="${C.cream}"/>
+  <rect x="26" y="62" width="11" height="14" rx="2.5" fill="${C.olive}"/>
+  <rect x="44" y="50" width="11" height="26" rx="2.5" fill="${C.orange}"/>
+  <rect x="62" y="40" width="11" height="36" rx="2.5" fill="${C.rose}"/>
+  <rect x="80" y="56" width="11" height="20" rx="2.5" fill="${C.gold}"/>
+  <line x1="60" y1="84" x2="60" y2="96"/>
+  <line x1="40" y1="98" x2="80" y2="98"/>
+  <path d="M92 18l2.6 6 6 2.6-6 2.6L92 35l-2.6-5.8-6-2.6 6-2.6z" fill="${C.gold}" stroke="none"/>
+  <circle cx="30" cy="33" r="3" fill="${C.orange}" stroke="none"/>
+</svg>`;
+
+// 2 — Grove Planner : calendar/notecard with a sprout growing
+const icoGrove = `<svg viewBox="0 0 120 120" fill="none" stroke="${C.ink}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="20" y="30" width="80" height="68" rx="10" fill="${C.cream}"/>
+  <line x1="20" y1="48" x2="100" y2="48"/>
+  <line x1="36" y1="22" x2="36" y2="38"/><line x1="84" y1="22" x2="84" y2="38"/>
+  <line x1="34" y1="62" x2="50" y2="62"/><line x1="34" y1="74" x2="46" y2="74"/>
+  <path d="M70 92V66" stroke="${C.olive}"/>
+  <path d="M70 74c-4-9-15-9-18-4 9 5 14 2 18 4z" fill="${C.olive}" stroke="${C.ink}"/>
+  <path d="M70 66c4-10 16-9 19-3-9 5-15 1-19 3z" fill="${C.orange}" stroke="${C.ink}"/>
+  <circle cx="84" cy="32" r="3" fill="${C.rose}" stroke="none"/>
+</svg>`;
+
+// 3 — Data Privacy : shield + keyhole + small figure
+const icoPrivacy = `<svg viewBox="0 0 120 120" fill="none" stroke="${C.ink}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+  <path d="M46 18l-26 9v26c0 21 14 33 26 39 12-6 26-18 26-39V27z" fill="${C.orange}"/>
+  <circle cx="46" cy="52" r="8" fill="${C.cream}"/>
+  <path d="M43 58h6l2 14H41z" fill="${C.cream}" stroke="${C.ink}"/>
+  <circle cx="92" cy="56" r="9" fill="${C.olive}"/>
+  <path d="M82 92c0-10 6-16 10-16s10 6 10 16" fill="${C.olive}"/>
+  <path d="M30 30l8-3" stroke="${C.gold}"/>
+</svg>`;
+
+// 4 — Pause Before You Prompt : flower of petals with pause bars at center
+const icoPause = `<svg viewBox="0 0 120 120" fill="none" stroke="${C.ink}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+  <g>
+    <ellipse cx="60" cy="28" rx="13" ry="19" fill="${C.rose}"/>
+    <ellipse cx="60" cy="92" rx="13" ry="19" fill="${C.rose}"/>
+    <ellipse cx="28" cy="60" rx="19" ry="13" fill="${C.orange}"/>
+    <ellipse cx="92" cy="60" rx="19" ry="13" fill="${C.orange}"/>
+    <ellipse cx="37" cy="37" rx="13" ry="13" fill="${C.olive}"/>
+    <ellipse cx="83" cy="37" rx="13" ry="13" fill="${C.olive}"/>
+    <ellipse cx="37" cy="83" rx="13" ry="13" fill="${C.gold}"/>
+    <ellipse cx="83" cy="83" rx="13" ry="13" fill="${C.gold}"/>
+  </g>
+  <circle cx="60" cy="60" r="17" fill="${C.cream}"/>
+  <rect x="52" y="52" width="5.5" height="16" rx="2.5" fill="${C.ink}" stroke="none"/>
+  <rect x="62.5" y="52" width="5.5" height="16" rx="2.5" fill="${C.ink}" stroke="none"/>
+</svg>`;
+
+// 5 — Power of a Prompt / Digital Footprint : server racks + energy bolt + footprint
+const icoFootprint = `<svg viewBox="0 0 120 120" fill="none" stroke="${C.ink}" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="22" y="20" width="58" height="20" rx="6" fill="${C.orange}"/>
+  <rect x="22" y="46" width="58" height="20" rx="6" fill="${C.cream}"/>
+  <rect x="22" y="72" width="58" height="20" rx="6" fill="${C.orange}"/>
+  <circle cx="33" cy="30" r="2.6" fill="${C.ink}" stroke="none"/><line x1="44" y1="30" x2="68" y2="30" stroke="${C.cream}"/>
+  <circle cx="33" cy="56" r="2.6" fill="${C.ink}" stroke="none"/><line x1="44" y1="56" x2="68" y2="56" stroke="${C.olive}"/>
+  <circle cx="33" cy="82" r="2.6" fill="${C.ink}" stroke="none"/><line x1="44" y1="82" x2="68" y2="82" stroke="${C.cream}"/>
+  <path d="M96 28l-12 22h9l-7 24 20-30h-10l8-16z" fill="${C.gold}" stroke="${C.ink}"/>
+</svg>`;
+
+/* =========================================================
+   EXPERIMENT DATA
+   ========================================================= */
+const EXPERIMENTS = [
+  {
+    title:"AI Literacy Toolkit",
+    tag:"Workshop Builder",
+    icon:icoWorkshop,
+    url:"https://mwatkins03-netizen.github.io/Interactive-Workshop-Builder-Claude-4.8-/",
+    mini:"Drop interactive activities and live polls straight into your slides.",
+    desc:"A builder for faculty leading AI-literacy sessions. It generates interactive activities you can embed directly into PowerPoint or Google Slides, with optional live polling that gathers responses from the whole room in real time — attendees join in person via QR code or through the embedded web view.",
+    classroom:"Run a faculty development workshop or a class discussion where every student responds live. Pose a question, embed the activity in your deck, and watch the room's answers populate on screen — no separate polling app, no accounts to manage."
+  },
+  {
+    title:"The Grove Planner",
+    tag:"Student Study Tool",
+    icon:icoGrove,
+    url:"https://mwatkins03-netizen.github.io/Grove-Planner-Opus-4.8-/",
+    mini:"A private, browser-based planner of schedules and study notecards.",
+    desc:"A free, student-built scheduling app that pairs a weekly schedule with digital notecards to organize coursework. Everything is stored locally on the student's own device — nothing is uploaded to a server — so it doubles as a model of privacy-respecting, local-first design.",
+    classroom:"Introduce it as a ready-to-use study aid at the start of a term, then turn it into a making lesson: have students adapt its features to their own courses and discuss why a tool that keeps data on-device matters."
+  },
+  {
+    title:"AI & Your Privacy",
+    tag:"Data Literacy",
+    icon:icoPrivacy,
+    url:"https://mwatkins03-netizen.github.io/Data-Privacy-and-AI-Opus-4.8-/",
+    mini:"Animated guide + carousel on how AI tools handle your data.",
+    desc:"Two interactive formats for understanding data handling in AI tools: a structured guide with animated diagrams and opt-out checklists, and an exploratory carousel covering AI agency, data privacy, copyright, and consent. Students can export their learning to HTML, PDF, or print — all in the browser, with nothing transmitted externally.",
+    classroom:"Assign it as a self-contained lesson before students use any AI tool. They walk the opt-out checklist for their own accounts, then export a one-page reflection you can collect as evidence of completion."
+  },
+  {
+    title:"Pause Before You Prompt",
+    tag:"Critical Thinking",
+    icon:icoPause,
+    url:"https://mwatkins03-netizen.github.io/Pause-Before-You-Prompt-Opus-4.8-/",
+    mini:"A reflective framework for deciding when — and whether — to prompt.",
+    desc:"An interactive adaptation of a critical-evaluation framework that asks students to pause and weigh their options before reaching for AI. Each petal opens a guiding consideration; students pick the ones that fit their task, reflect, and export their reasoning as HTML, PDF, or print.",
+    classroom:"Use it as a pre-writing or pre-research gate. Before any AI-assisted assignment, students complete the reflection and submit it — making the decision to use (or not use) AI a deliberate, documented choice rather than a reflex."
+  },
+  {
+    title:"The Power of a Prompt",
+    tag:"AI & Environment",
+    icon:icoFootprint,
+    url:"https://mwatkins03-netizen.github.io/The-Power-of-a-Prompt-Opus-4.8-/",
+    mini:"Drag, compare, and feel the energy behind everyday digital tasks.",
+    desc:"An AI-literacy activity that visualizes the energy hidden behind everyday digital tasks. Students drag and compare searches, streams, and AI requests to see real-world power usage, then assemble a personalized daily digital footprint. Figures are drawn from authoritative sources like the IEA and peer-reviewed research.",
+    classroom:"Anchor a discussion on AI and sustainability. Students build their own footprint, then debate the activity's core insight — that scale, not any single prompt, is what makes data centers matter — connecting personal habits to systemic impact."
+  }
+];
+
+/* =========================================================
+   CAROUSEL ENGINE — true 3D rotating cylinder
+   ========================================================= */
+const N = EXPERIMENTS.length;
+const STEP = 360 / N;                 // degrees between cards
+const RADIUS = 330;                   // cylinder radius in px
+const cylinder = document.getElementById('cylinder');
+const dotsWrap = document.getElementById('dots');
+const detail = document.getElementById('detail');
+let current = 0;
+let theta = 0;                        // accumulated rotation (deg)
+
+// build cards + dots
+EXPERIMENTS.forEach((e,i)=>{
+  const card = document.createElement('div');
+  card.className='card';
+  card.dataset.index=i;
+  card.style.transform=`rotateY(${i*STEP}deg) translateZ(${RADIUS}px)`;
+  card.innerHTML = `${star}
+    <div class="icon">${e.icon}</div>
+    <div class="tag">${e.tag}</div>
+    <h3>${e.title}</h3>
+    <p class="mini">${e.mini}</p>
+    <div class="open-hint">▶ Open Preview</div>`;
+  card.addEventListener('click',()=>{
+    if(i===current) openPreview(i);
+    else goTo(i);
+  });
+  cylinder.appendChild(card);
+
+  const dot = document.createElement('button');
+  dot.setAttribute('aria-label','Show '+e.title);
+  dot.addEventListener('click',()=>goTo(i));
+  dotsWrap.appendChild(dot);
+});
+const cards = [...cylinder.children];
+const dots = [...dotsWrap.children];
+
+function render(){
+  // rotate cylinder so current card faces front
+  cylinder.style.transform=`translateZ(-${RADIUS}px) rotateY(${theta}deg)`;
+  cards.forEach((c,i)=>{
+    const active = i===current;
+    c.classList.toggle('is-active',active);
+    // depth-based fade for non-front cards
+    let diff = ((i-current)%N+N)%N; if(diff>N/2) diff-=N;
+    const d = Math.abs(diff);
+    c.style.opacity = d===0?1: d===1?0.78:0.5;
+    c.style.filter = d===0?'none':`brightness(${1-d*0.07})`;
+  });
+  dots.forEach((d,i)=>d.classList.toggle('active',i===current));
+  renderDetail();
+}
+
+function goTo(i){
+  // shortest rotation direction
+  let diff = ((i-current)%N+N)%N; if(diff>N/2) diff-=N;
+  theta -= diff*STEP;
+  current = i;
+  render();
+}
+function step(dir){ goTo(((current+dir)%N+N)%N); }
+
+function renderDetail(){
+  const e = EXPERIMENTS[current];
+  detail.innerHTML = `
+    <div class="detail-top">
+      <div class="detail-icon">${e.icon}</div>
+      <div class="detail-head">
+        <span class="tag">${e.tag}</span>
+        <h2>${e.title}</h2>
+      </div>
+    </div>
+    <p class="desc">${e.desc}</p>
+    <div class="classroom">
+      <div class="lbl">✎ In the Classroom</div>
+      <p>${e.classroom}</p>
+    </div>
+    <div class="detail-actions">
+      <button class="btn btn-primary" id="openBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+        Open Preview
+      </button>
+      <a class="btn btn-ghost" href="${e.url}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+        Open in New Tab
+      </a>
+    </div>`;
+  document.getElementById('openBtn').addEventListener('click',()=>openPreview(current));
+}
+
+document.getElementById('next').addEventListener('click',()=>step(1));
+document.getElementById('prev').addEventListener('click',()=>step(-1));
+
+// keyboard
+window.addEventListener('keydown',(ev)=>{
+  if(document.getElementById('overlay').classList.contains('open')){
+    if(ev.key==='Escape') closePreview();
+    return;
+  }
+  if(ev.key==='ArrowRight') step(1);
+  if(ev.key==='ArrowLeft') step(-1);
+});
+
+// drag / swipe to rotate
+const scene = document.getElementById('scene');
+let dragging=false, startX=0, moved=0;
+function down(x){dragging=true;startX=x;moved=0;stopAuto();}
+function move(x){ if(!dragging) return; moved=x-startX; }
+function up(){
+  if(!dragging) return; dragging=false;
+  if(Math.abs(moved)>55) step(moved<0?1:-1);
+  startAuto();
+}
+scene.addEventListener('mousedown',e=>down(e.clientX));
+window.addEventListener('mousemove',e=>move(e.clientX));
+window.addEventListener('mouseup',up);
+scene.addEventListener('touchstart',e=>down(e.touches[0].clientX),{passive:true});
+scene.addEventListener('touchmove',e=>move(e.touches[0].clientX),{passive:true});
+scene.addEventListener('touchend',up);
+
+// auto-rotate
+let auto;
+function startAuto(){ stopAuto(); auto=setInterval(()=>step(1),5200); }
+function stopAuto(){ if(auto) clearInterval(auto); }
+scene.addEventListener('mouseenter',stopAuto);
+scene.addEventListener('mouseleave',()=>{ if(!document.getElementById('overlay').classList.contains('open')) startAuto(); });
+
+/* =========================================================
+   PREVIEW MODAL
+   ========================================================= */
+const overlay=document.getElementById('overlay');
+const iframe=document.getElementById('modalIframe');
+const frameLoad=document.getElementById('frameLoad');
+const modalTitle=document.getElementById('modalTitle');
+const modalFrame=document.getElementById('modalFrame');
+const btnTab=document.getElementById('btnTab');
+
+function openPreview(i){
+  const e=EXPERIMENTS[i];
+  stopAuto();
+  modalTitle.textContent=e.title;
+  btnTab.href=e.url;
+  frameLoad.style.display='grid';
+  iframe.src=e.url;
+  overlay.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closePreview(){
+  if(document.fullscreenElement) document.exitFullscreen();
+  overlay.classList.remove('open');
+  iframe.src='about:blank';
+  document.body.style.overflow='';
+  startAuto();
+}
+iframe.addEventListener('load',()=>{ if(iframe.src.indexOf('about:blank')<0) frameLoad.style.display='none'; });
+document.getElementById('btnClose').addEventListener('click',closePreview);
+overlay.addEventListener('click',e=>{ if(e.target===overlay) closePreview(); });
+
+// fullscreen
+document.getElementById('btnFull').addEventListener('click',()=>{
+  if(document.fullscreenElement){ document.exitFullscreen(); }
+  else if(modalFrame.requestFullscreen){ modalFrame.requestFullscreen(); }
+  else if(modalFrame.webkitRequestFullscreen){ modalFrame.webkitRequestFullscreen(); }
+});
+
+/* init */
+document.getElementById('yr').textContent=new Date().getFullYear();
+render();
+startAuto();
+</script>
+</body>
+</html>
